@@ -13,10 +13,7 @@ const app = express(); // Initialize express app
 const client = new OAuth2Client('514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com');
 
 // Middleware
-app.use(cors({
-  origin: 'https://chatguruv21-3c905pjl.b4a.run', // Allow this origin
-  credentials: true, // Enable cookies and credentials
-}));
+app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
