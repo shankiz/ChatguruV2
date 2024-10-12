@@ -1,120 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Login - AI Nexus</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #020b1a;
-            color: #a0e4ff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(6, 124, 250, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(6, 124, 250, 0.1) 0%, transparent 20%);
-            background-attachment: fixed;
-        }
-        .login-container {
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            padding: 30px 20px;
-            background-color: rgba(4, 32, 55, 0.8);
-            border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0, 195, 255, 0.2);
-        }
-        h1 {
-            color: #00c3ff;
-            font-size: 1.8em;
-            font-weight: 700;
-            font-family: 'Orbitron', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-        }
-        p {
-            color: #68d5ff;
-            margin-bottom: 30px;
-            font-size: 0.9em;
-        }
-        .g_id_signin {
-            display: flex;
-            justify-content: center;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-signin-client_id" content="514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com">
+  <title>Login - ChatGuru</title>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+    }
+    .container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .g-signin2 {
+      margin-bottom: 20px;
+    }
+    .error {
+      color: red;
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1>Welcome to AI Nexus</h1>
-        <p>Please sign in to continue</p>
-        <div id="g_id_onload"
-             data-client_id="514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com"
-             data-callback="handleCredentialResponse">
-        </div>
-        <div class="g_id_signin" data-type="standard"></div>
-    </div>
 
-    <script>
-        function getUrlParameter(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  <div class="container">
+    <h1>Welcome to ChatGuru</h1>
+    <div id="error-message" class="error"></div>
+    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+  </div>
+
+  <script>
+    // Handle Google Sign-In Success
+    function onSignIn(googleUser) {
+      var id_token = googleUser.getAuthResponse().id_token;
+
+      // Send the token to the server
+      fetch('/auth/google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',  // Ensure credentials (cookies) are sent with request
+        body: JSON.stringify({ token: id_token, referralCode: getReferralCode() })  // Send the referral code if available
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          window.location.href = '/chat';  // Redirect to chat page if login is successful
+        } else {
+          displayError(data.message || 'Login failed');
         }
+      })
+      .catch(error => {
+        displayError('An error occurred while processing your login. Please try again.');
+        console.error('Error:', error);
+      });
+    }
 
-        function handleCredentialResponse(response) {
-            console.log("Received credential response", response);
-            const referralCode = getUrlParameter('ref');
-            fetch('/auth/google', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ token: response.credential, referralCode })
-            })
-            .then(res => {
-                console.log("Received response from server", res);
-                return res.json();
-            })
-            .then(data => {
-                console.log("Parsed response data", data);
-                if (data.success) {
-                    window.location.href = '/chat';
-                } else {
-                    console.error('Sign-in failed:', data.message);
-                    alert('Login failed. Please try again.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
-            });
-        }
+    // Handle errors by showing them in the UI
+    function displayError(message) {
+      const errorMessageElement = document.getElementById('error-message');
+      errorMessageElement.textContent = message;
+    }
 
-        window.onload = function() {
-            google.accounts.id.initialize({
-                client_id: '514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com',
-                callback: handleCredentialResponse
-            });
-            google.accounts.id.renderButton(
-                document.getElementsByClassName("g_id_signin")[0],
-                { theme: "outline", size: "large" }
-            );
-        };
-    </script>
+    // Get referral code from URL parameters
+    function getReferralCode() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('ref') || '';  // Return referral code or empty string if not found
+    }
+
+    // Sign out function (in case you need it)
+    function signOut() {
+      var auth2 = gapi.auth2.getAuthInstance();
+      auth2.signOut().then(function () {
+        console.log('User signed out.');
+      });
+    }
+
+    // Initialize Google API when the page loads
+    window.onload = function() {
+      gapi.load('auth2', function() {
+        gapi.auth2.init();
+      });
+    };
+  </script>
+
 </body>
 </html>
