@@ -122,22 +122,25 @@
         function initializeGoogleSignIn() {
             google.accounts.id.initialize({
                 client_id: '514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com',
-                callback: handleCredentialResponse,
-                ux_mode: 'popup'  // This forces the use of a popup instead of a redirect
+                callback: handleCredentialResponse
             });
 
-            document.getElementById('google-signin-btn').addEventListener('click', function() {
-                google.accounts.id.prompt((notification) => {
-                    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                        // Try to render the Google Sign-In button manually
-                        google.accounts.id.renderButton(
-                            document.getElementById('google-signin-btn'),
-                            { theme: 'outline', size: 'large' }
-                        );
-                        // If rendering fails, open the Google Sign-In page in a new window
-                        window.open('https://accounts.google.com', '_blank');
-                    }
-                });
+            const signInButton = document.getElementById('google-signin-btn');
+            signInButton.addEventListener('click', function() {
+                if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+                    google.accounts.id.prompt((notification) => {
+                        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                            // Try to render the Google Sign-In button
+                            google.accounts.id.renderButton(
+                                signInButton,
+                                { theme: 'outline', size: 'large' }
+                            );
+                        }
+                    });
+                } else {
+                    console.error('Google Sign-In API not loaded');
+                    alert('Unable to initialize Google Sign-In. Please try again later.');
+                }
             });
         }
 
