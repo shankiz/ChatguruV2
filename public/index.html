@@ -52,8 +52,39 @@
             font-size: 0.9em;
         }
         .g_id_signin {
+            display: none;
+        }
+        .custom-google-btn {
+            background-color: #00a2ff;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            font-family: 'Orbitron', sans-serif;
+            border-radius: 30px;
+            cursor: pointer;
             display: flex;
+            align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 162, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .custom-google-btn:hover {
+            background-color: #0088d1;
+            box-shadow: 0 0 20px rgba(0, 162, 255, 0.7);
+            transform: translateY(-2px);
+        }
+        .custom-google-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 0 10px rgba(0, 162, 255, 0.3);
+        }
+        .custom-google-btn img {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
         }
     </style>
 </head>
@@ -66,6 +97,10 @@
              data-callback="handleCredentialResponse">
         </div>
         <div class="g_id_signin" data-type="standard"></div>
+        <button class="custom-google-btn" onclick="signInWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo">
+            Sign in with Google
+        </button>
     </div>
 
     <script>
@@ -106,15 +141,15 @@
             });
         }
 
+        function signInWithGoogle() {
+            google.accounts.id.prompt();
+        }
+
         window.onload = function() {
             google.accounts.id.initialize({
                 client_id: '514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com',
                 callback: handleCredentialResponse
             });
-            google.accounts.id.renderButton(
-                document.getElementsByClassName("g_id_signin")[0],
-                { theme: "outline", size: "large" }
-            );
         };
     </script>
 </body>
