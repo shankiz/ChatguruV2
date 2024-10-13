@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Chatguru V2</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="https://apis.google.com/js/api.js"></script>
     <meta name="google-signin-client_id" content="514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com">
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
     <style>
         * {
             box-sizing: border-box;
@@ -145,8 +146,10 @@
             .then(data => {
                 console.log("Parsed response data", data);
                 if (data.success) {
-                    console.log('Redirecting to /chat...');
-                    window.location.href = '/chat';
+                    console.log('Attempting to redirect to /chat...');
+                    setTimeout(() => {
+                        window.location.href = '/chat';
+                    }, 100);
                 } else {
                     console.error('Sign-in failed:', data.message);
                     alert('Login failed. Please try again.');
@@ -163,18 +166,17 @@
             alert('Sign-in failed. Please try again.');
         }
 
-        function renderButton() {
-            gapi.signin2.render('my-signin2', {
-                'scope': 'profile email',
-                'width': 300,  // Increased width to cover the entire button
-                'height': 50,
-                'longtitle': true,
-                'theme': 'dark',
-                'onsuccess': onSuccess,
-                'onfailure': onFailure
+        function initGoogleSignIn() {
+            gapi.load('auth2', function() {
+                gapi.auth2.init({
+                    client_id: '514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com'
+                }).then(function(auth2) {
+                    auth2.attachClickHandler('my-signin2', {}, onSuccess, onFailure);
+                });
             });
         }
+
+        window.onload = initGoogleSignIn;
     </script>
-    <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
 </body>
 </html>
