@@ -90,7 +90,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ token: response.credential, referralCode })
+                body: JSON.stringify({ token: response.code, referralCode })
             })
             .then(res => {
                 console.log("Received response from server", res);
@@ -112,14 +112,16 @@
             });
         }
 
+        let googleAuthClient;
         window.onload = function() {
-            google.accounts.id.initialize({
+            googleAuthClient = google.accounts.oauth2.initCodeClient({
                 client_id: '514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com',
+                scope: 'email profile',
                 callback: handleCredentialResponse
             });
 
             document.getElementById('customSignInBtn').addEventListener('click', function() {
-                google.accounts.id.prompt(); // Manually trigger the Google sign-in prompt
+                googleAuthClient.requestCode(); // Opens a new window/tab to select Google account
             });
         };
     </script>
