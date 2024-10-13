@@ -106,43 +106,15 @@
             });
         }
 
-        function handleGoogleSignInFailure() {
-            var signInContainer = document.getElementsByClassName("g_id_signin")[0];
-            signInContainer.innerHTML = `
-                <p style="color: red; margin-bottom: 15px;">Google Sign-In is not available.</p>
-                <button onclick="attemptManualSignIn()" style="padding: 10px 20px; background-color: #4285F4; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                    Sign In Manually
-                </button>
-            `;
-        }
-
-        function attemptManualSignIn() {
-            // Implement a manual sign-in process here
-            alert('Manual sign-in process not implemented. Please contact support.');
-        }
-
         window.onload = function() {
-            if (typeof google === 'undefined' || typeof google.accounts === 'undefined') {
-                console.error('Google Sign-In API failed to load');
-                handleGoogleSignInFailure();
-                return;
-            }
-
             google.accounts.id.initialize({
-                client_id: '514245604873-2knb24t9he0c600b4557nrvnnrpaag36.apps.googleusercontent.com',
+                client_id: '514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com',
                 callback: handleCredentialResponse
             });
-
-            try {
-                google.accounts.id.renderButton(
-                    document.getElementsByClassName("g_id_signin")[0],
-                    { theme: "outline", size: "large" }
-                );
-                console.log('Google Sign-In button rendered successfully');
-            } catch (error) {
-                console.error('Error rendering Google Sign-In button:', error);
-                handleGoogleSignInFailure();
-            }
+            google.accounts.id.renderButton(
+                document.getElementsByClassName("g_id_signin")[0],
+                { theme: "outline", size: "large" }
+            );
         };
     </script>
 </body>
