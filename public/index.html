@@ -107,6 +107,32 @@
             opacity: 0;
             cursor: pointer;
         }
+        .google-signin-button {
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            font-family: 'Roboto', sans-serif;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        .google-signin-button:hover {
+            background-color: #357AE8;
+        }
+
+        .google-signin-button img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -118,6 +144,11 @@
             Sign in with Google
             <div id="my-signin2"></div>
         </div>
+        <!-- New button added here -->
+        <button class="google-signin-button" onclick="signIn()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo">
+            Sign in with Google
+        </button>
     </div>
 
     <script>
@@ -164,6 +195,14 @@
         function onFailure(error) {
             console.error('Sign-in error:', error);
             alert('Sign-in failed. Please try again.');
+        }
+
+        function signIn() {
+            const auth2 = gapi.auth2.getAuthInstance();
+            auth2.signIn().then(
+                googleUser => onSuccess(googleUser),
+                error => onFailure(error)
+            );
         }
 
         function initGoogleSignIn() {
