@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Login - AI Nexus</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         * {
             box-sizing: border-box;
@@ -80,7 +81,6 @@
         <button id="google-signin-btn" class="google-signin-btn">Sign in with Google</button>
     </div>
 
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
         function getUrlParameter(name) {
             name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
@@ -99,12 +99,8 @@
                 },
                 body: JSON.stringify({ token: response.credential, referralCode })
             })
-            .then(res => {
-                console.log("Received response from server", res);
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => {
-                console.log("Parsed response data", data);
                 if (data.success) {
                     console.log('Redirecting to /chat...');
                     window.location.href = '/chat';
@@ -125,30 +121,21 @@
                 callback: handleCredentialResponse
             });
 
-            const signInButton = document.getElementById('google-signin-btn');
-            signInButton.addEventListener('click', function() {
-                if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
-                    google.accounts.id.prompt((notification) => {
-                        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                            // Try to render the Google Sign-In button
-                            google.accounts.id.renderButton(
-                                signInButton,
-                                { theme: 'outline', size: 'large' }
-                            );
-                        }
-                    });
-                } else {
-                    console.error('Google Sign-In API not loaded');
-                    alert('Unable to initialize Google Sign-In. Please try again later.');
-                }
+            document.getElementById('google-signin-btn').addEventListener('click', function() {
+                google.accounts.id.prompt((notification) => {
+                    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                        console.error('Google Sign-In prompt not displayed');
+                        // Fallback: open Google Sign-In in a new window
+                        window.open('https://accounts.google.com/signin', '_blank');
+                    }
+                });
             });
         }
 
-        // Initialize Google Sign-In when the script is loaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeGoogleSignIn);
-        } else {
+        if (document.readyState !== 'loading') {
             initializeGoogleSignIn();
+        } else {
+            document.addEventListener('DOMContentLoaded', initializeGoogleSignIn);
         }
     </script>
 </body>
