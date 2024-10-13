@@ -51,26 +51,9 @@
             margin-bottom: 30px;
             font-size: 0.9em;
         }
-        .google-signin-btn {
-            background-color: #00c3ff;
-            color: #020b1a;
-            border: none;
-            padding: 12px 24px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(0, 195, 255, 0.5);
-            outline: none;
-        }
-        .google-signin-btn:hover {
-            background-color: #0099ff;
-            box-shadow: 0 0 20px rgba(0, 195, 255, 0.8);
-            transform: translateY(-2px);
+        .g_id_signin {
+            display: flex;
+            justify-content: center;
         }
     </style>
 </head>
@@ -78,7 +61,11 @@
     <div class="login-container">
         <h1>Welcome to AI Nexus</h1>
         <p>Please sign in to continue</p>
-        <button id="google-signin-btn" class="google-signin-btn">Sign in with Google</button>
+        <div id="g_id_onload"
+             data-client_id="514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
     </div>
 
     <script>
@@ -99,8 +86,12 @@
                 },
                 body: JSON.stringify({ token: response.credential, referralCode })
             })
-            .then(res => res.json())
+            .then(res => {
+                console.log("Received response from server", res);
+                return res.json();
+            })
             .then(data => {
+                console.log("Parsed response data", data);
                 if (data.success) {
                     console.log('Redirecting to /chat...');
                     window.location.href = '/chat';
@@ -115,28 +106,31 @@
             });
         }
 
-        function initializeGoogleSignIn() {
+        window.onload = function() {
+            if (typeof google === 'undefined' || typeof google.accounts === 'undefined') {
+                console.error('Google Sign-In API failed to load');
+                document.getElementsByClassName("g_id_signin")[0].innerHTML = 
+                    '<p style="color: red;">Error: Google Sign-In is not available. Please try again later.</p>';
+                return;
+            }
+
             google.accounts.id.initialize({
                 client_id: '514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com',
                 callback: handleCredentialResponse
             });
 
-            document.getElementById('google-signin-btn').addEventListener('click', function() {
-                google.accounts.id.prompt((notification) => {
-                    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                        console.error('Google Sign-In prompt not displayed');
-                        // Fallback: open Google Sign-In in a new window
-                        window.open('https://accounts.google.com/signin', '_blank');
-                    }
-                });
-            });
-        }
-
-        if (document.readyState !== 'loading') {
-            initializeGoogleSignIn();
-        } else {
-            document.addEventListener('DOMContentLoaded', initializeGoogleSignIn);
-        }
+            try {
+                google.accounts.id.renderButton(
+                    document.getElementsByClassName("g_id_signin")[0],
+                    { theme: "outline", size: "large" }
+                );
+                console.log('Google Sign-In button rendered successfully');
+            } catch (error) {
+                console.error('Error rendering Google Sign-In button:', error);
+                document.getElementsByClassName("g_id_signin")[0].innerHTML = 
+                    '<p style="color: red;">Error: Unable to display Google Sign-In button. Please try again later.</p>';
+            }
+        };
     </script>
 </body>
 </html>
