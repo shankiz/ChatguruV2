@@ -93,6 +93,7 @@
             .then(data => {
                 console.log("Parsed response data", data);
                 if (data.success) {
+                    console.log('Redirecting to /chat...');
                     window.location.href = '/chat';
                 } else {
                     console.error('Sign-in failed:', data.message);
