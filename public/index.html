@@ -51,19 +51,9 @@
             margin-bottom: 30px;
             font-size: 0.9em;
         }
-        .custom-signin-btn {
-            background-color: #00c3ff;
-            color: #020b1a;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1em;
-            font-weight: 500;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .custom-signin-btn:hover {
-            background-color: #009ace;
+        .g_id_signin {
+            display: flex;
+            justify-content: center;
         }
     </style>
 </head>
@@ -71,7 +61,11 @@
     <div class="login-container">
         <h1>Welcome to AI Nexus</h1>
         <p>Please sign in to continue</p>
-        <button class="custom-signin-btn" id="customSignInBtn">Sign in with Google</button>
+        <div id="g_id_onload"
+             data-client_id="514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
     </div>
 
     <script>
@@ -90,7 +84,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ token: response.code, referralCode })
+                body: JSON.stringify({ token: response.credential, referralCode })
             })
             .then(res => {
                 console.log("Received response from server", res);
@@ -112,17 +106,15 @@
             });
         }
 
-        let googleAuthClient;
         window.onload = function() {
-            googleAuthClient = google.accounts.oauth2.initCodeClient({
+            google.accounts.id.initialize({
                 client_id: '514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com',
-                scope: 'email profile',
                 callback: handleCredentialResponse
             });
-
-            document.getElementById('customSignInBtn').addEventListener('click', function() {
-                googleAuthClient.requestCode(); // Opens a new window/tab to select Google account
-            });
+            google.accounts.id.renderButton(
+                document.getElementsByClassName("g_id_signin")[0],
+                { theme: "outline", size: "large" }
+            );
         };
     </script>
 </body>
