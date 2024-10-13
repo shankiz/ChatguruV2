@@ -80,6 +80,7 @@
         <button id="google-signin-btn" class="google-signin-btn">Sign in with Google</button>
     </div>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
         function getUrlParameter(name) {
             name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
@@ -118,32 +119,33 @@
             });
         }
 
-        function loadGoogleSignIn() {
+        function initializeGoogleSignIn() {
             google.accounts.id.initialize({
                 client_id: '514245604873-etsihper83o1d1cbi9pmhfm2hbifov9m.apps.googleusercontent.com',
-                callback: handleCredentialResponse
+                callback: handleCredentialResponse,
+                ux_mode: 'popup'  // This forces the use of a popup instead of a redirect
             });
 
             document.getElementById('google-signin-btn').addEventListener('click', function() {
-                google.accounts.id.prompt();
+                google.accounts.id.prompt((notification) => {
+                    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                        // Try to render the Google Sign-In button manually
+                        google.accounts.id.renderButton(
+                            document.getElementById('google-signin-btn'),
+                            { theme: 'outline', size: 'large' }
+                        );
+                        // If rendering fails, open the Google Sign-In page in a new window
+                        window.open('https://accounts.google.com', '_blank');
+                    }
+                });
             });
         }
 
-        // Load the Google Sign-In API script
-        function loadGoogleScript() {
-            const script = document.createElement('script');
-            script.src = 'https://accounts.google.com/gsi/client';
-            script.async = true;
-            script.defer = true;
-            script.onload = loadGoogleSignIn;
-            document.body.appendChild(script);
-        }
-
-        // Call the function to load the Google script when the page is ready
+        // Initialize Google Sign-In when the script is loaded
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', loadGoogleScript);
+            document.addEventListener('DOMContentLoaded', initializeGoogleSignIn);
         } else {
-            loadGoogleScript();
+            initializeGoogleSignIn();
         }
     </script>
 </body>
