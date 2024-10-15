@@ -131,6 +131,5 @@
             google.accounts.id.prompt();
         };
     </script>
-
 </body>
 </html>
