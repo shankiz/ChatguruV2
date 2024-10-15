@@ -20,19 +20,15 @@ try {
     let chatId = Date.now().toString();
     let stream;
     let currentImageData = null;
+    let currentFacingMode = 'environment';
 
     function addMessage(role, content) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${role === 'You' ? 'user-message' : ''}`;
 
-        let formattedContent = content;
-        if (role === 'AI') {
-            formattedContent = formatAIResponse(content);
-        }
-
         messageDiv.innerHTML = `
             <div class="avatar">${role === 'You' ? 'U' : 'AI'}</div>
-            <div class="content">${formattedContent}</div>
+            <div class="content">${content}</div>
         `;
         messagesContainer.appendChild(messageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -113,7 +109,7 @@ try {
         document.getElementById('user-avatar').src = userData.picture || 'default-avatar.png';
         document.getElementById('user-credits').textContent = userData.credits;
         getReferralCode();
-        startReferralCheck(); // Replace checkClaimableReferrals() with this
+        startReferralCheck();
     }
 
     function toggleProfileDropdown() {
@@ -154,15 +150,22 @@ try {
     function handleSend() {
         const message = userInput.value.trim();
         if (message || currentImageData) {
+            let messageContent = '';
+
             if (currentImageData) {
-                addMessage('You', `<img src="${currentImageData}" style="max-width: 200px; max-height: 200px;">`);
-                sendMessage({ text: message, image_url: currentImageData });
-                clearImagePreview();
-            } else {
-                addMessage('You', message);
-                sendMessage({ text: message });
+                messageContent += `<img src="${currentImageData}" style="max-width: 200px; max-height: 200px;">`;
             }
+
+            if (message) {
+                messageContent += `<p>${message}</p>`;
+            }
+
+            addMessage('You', messageContent);
+
+            sendMessage({ text: message, image_url: currentImageData });
+
             userInput.value = '';
+            clearImagePreview();
         }
     }
 
@@ -180,17 +183,8 @@ try {
         messagesContainer.innerHTML = '';
         clearImagePreview();
         chatId = Date.now().toString();
-        addNewChatButton();
         const userName = document.getElementById('user-name-display').textContent;
         addMessage('AI', `Hello ${userName}! How can I assist you today?`);
-    }
-
-    function addNewChatButton() {
-        const newChatButton = document.createElement('button');
-        newChatButton.id = 'new-chat-button';
-        newChatButton.textContent = '+ New Chat';
-        newChatButton.addEventListener('click', resetConversation);
-        messagesContainer.insertBefore(newChatButton, messagesContainer.firstChild);
     }
 
     function clearImagePreview() {
@@ -204,14 +198,13 @@ try {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }
+        currentFacingMode = 'environment'; // Reset to default rear camera
     }
 
-    // Debug function
     function debugLog(message) {
         console.log(`[DEBUG] ${message}`);
     }
 
-    // Initialize theme based on user preference or default to dark mode
     function initializeTheme() {
         const savedTheme = localStorage.getItem('theme');
         debugLog(`Initializing theme. Saved theme: ${savedTheme}`);
@@ -221,7 +214,6 @@ try {
         }
     }
 
-    // Check if themeToggle exists
     if (themeToggle) {
         debugLog('Theme toggle found. Attaching event listener.');
         themeToggle.addEventListener('click', function(event) {
@@ -261,13 +253,11 @@ try {
         debugLog('Theme slider not found in the DOM');
     }
 
-    // Call initializeTheme when the page loads
     window.addEventListener('DOMContentLoaded', (event) => {
         debugLog('DOM fully loaded and parsed');
         initializeTheme();
     });
 
-    // Update the existing window.onload function
     window.onload = function() {
         updateUserInfo().then(() => {
             debugLog('User info updated');
@@ -283,7 +273,6 @@ try {
         });
 
         debugLog('Window loaded');
-        // Check if the theme toggle exists
         if (themeToggle) {
             debugLog('Theme toggle found in the DOM after window load');
         } else {
@@ -299,73 +288,27 @@ try {
     });
     uploadButton.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', (e) => handleFileUpload(e.target.files[0]));
-    cameraButton.addEventListener('click', async () => {
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            cameraFeed.srcObject = stream;
-            cameraModal.style.display = 'block';
-        } catch (err) {
-            console.error("Error accessing the camera", err);
-        }
-    });
-    captureButton.addEventListener('click', () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = cameraFeed.videoWidth;
-        canvas.height = cameraFeed.videoHeight;
-        canvas.getContext('2d').drawImage(cameraFeed, 0, 0);
-        const imageDataUrl = canvas.toDataURL('image/jpeg');
-        showImagePreview(imageDataUrl);
-        closeCameraModal();
-    });
+
+    // Updated camera-related event listeners
+    cameraButton.addEventListener('click', openCamera);
+    captureButton.addEventListener('click', captureImage);
     closeCameraButton.addEventListener('click', closeCameraModal);
+    document.getElementById('rotate-camera-button').addEventListener('click', rotateCamera);
+
     deleteImageButton.addEventListener('click', clearImagePreview);
     document.getElementById('new-chat-button').addEventListener('click', resetConversation);
     document.getElementById('get-credits-button').addEventListener('click', function() {
         alert('This feature is coming soon!');
     });
 
-    // Theme toggle functionality
-    themeToggle.addEventListener('change', function() {
-        if (this.checked) {
-            rootElement.classList.add('light-mode');
-        } else {
-            rootElement.classList.remove('light-mode');
-        }
-    });
-
-    // Add this function to your script.js file
-    function toggleTheme() {
-        const isLightMode = themeToggle.checked;
-        if (isLightMode) {
-            rootElement.classList.add('light-mode');
-            localStorage.setItem('theme', 'light');
-        } else {
-            rootElement.classList.remove('light-mode');
-            localStorage.setItem('theme', 'dark');
-        }
-        console.log(`Theme changed to: ${isLightMode ? 'light' : 'dark'}`);
-    }
-
-    // Initialize theme
-    function initializeTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'light') {
-            themeToggle.checked = true;
-            rootElement.classList.add('light-mode');
-        }
-    }
-
-    // Add these event listeners
     themeToggle.addEventListener('change', toggleTheme);
-    window.addEventListener('DOMContentLoaded', initializeTheme);
 
-    // Add these functions
     async function getReferralCode() {
         try {
             const response = await fetch('/referral-code');
             const data = await response.json();
             document.getElementById('referral-link').textContent = data.referralLink;
-            checkClaimableReferrals(); // Check referral status when getting the code
+            checkClaimableReferrals();
         } catch (error) {
             console.error('Error fetching referral code:', error);
         }
@@ -382,7 +325,7 @@ try {
             if (data.claimableReferrals > 0) {
                 claimButton.disabled = false;
                 claimButton.classList.add('active');
-                referralStatus.textContent = `${data.claimableReferrals} people signed up through your link. You can now claim ${data.claimableReferrals * 30} credits!`; // Changed from 7 to 30
+                referralStatus.textContent = `${data.claimableReferrals} people signed up through your link. You can now claim ${data.claimableReferrals * 30} credits!`;
             } else {
                 claimButton.disabled = true;
                 claimButton.classList.remove('active');
@@ -401,7 +344,7 @@ try {
                 alert(`Referral credits claimed! You earned ${data.claimedCredits} credits. New credit balance: ${data.newCredits}`);
                 document.getElementById('user-credits').textContent = data.newCredits;
                 document.getElementById('profile-credits').textContent = data.newCredits;
-                checkClaimableReferrals(); // Update the referral status
+                checkClaimableReferrals();
             } else {
                 alert(data.message || "No credits to claim at this time.");
             }
@@ -411,7 +354,6 @@ try {
         }
     }
 
-    // Add event listeners
     document.getElementById('copy-referral-link').addEventListener('click', () => {
         const referralLink = document.getElementById('referral-link').textContent;
         navigator.clipboard.writeText(referralLink)
@@ -421,20 +363,15 @@ try {
 
     document.getElementById('claim-referral').addEventListener('click', claimReferralCredits);
 
-    // Add this function
     function startReferralCheck() {
         checkClaimableReferrals();
-        // Check for claimable referrals every 60 seconds
         setInterval(checkClaimableReferrals, 60000);
     }
 
-    // Make sure this event listener is properly set
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('claim-referral').addEventListener('click', claimReferralCredits);
-        // ... other event listeners ...
     });
 
-    // Add this function to extract URL parameters
     function getUrlParameter(name) {
         name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
         var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -442,7 +379,6 @@ try {
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     }
 
-    // Modify the handleCredentialResponse function
     function handleCredentialResponse(response) {
         console.log("Received credential response", response);
         const referralCode = getUrlParameter('ref');
@@ -455,29 +391,64 @@ try {
         })
         .then(res => res.json())
         .then(data => {
-            if (data.success) {
-                window.location.href = '/chat';
-            } else {
-                console.error('Sign-in failed:', data.message);
-                alert('Login failed. Please try again.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-        });
-    }
+            if (data.success) {                window.location.href = '/chat';
+                            } else {
+                                console.error('Sign-in failed:', data.message);
+                                alert('Login failed. Please try again.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred. Please try again.');
+                        });
+                    }
 
-} catch (error) {
-    console.error('An error occurred in the script:', error);
-}
+                    // New camera-related functions
+                    async function openCamera() {
+                        try {
+                            const constraints = {
+                                video: { facingMode: currentFacingMode }
+                            };
+                            stream = await navigator.mediaDevices.getUserMedia(constraints);
+                            cameraFeed.srcObject = stream;
+                            cameraModal.style.display = 'block';
+                        } catch (err) {
+                            console.error("Error accessing the camera", err);
+                            alert("Error accessing the camera. Please make sure you've granted camera permissions.");
+                        }
+                    }
 
-document.addEventListener('click', function(event) {
-    const dropdown = document.getElementById('profile-dropdown');
-    const profileHeader = document.getElementById('profile-header');
+                    async function rotateCamera() {
+                        currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+                        if (stream) {
+                            stream.getTracks().forEach(track => track.stop());
+                        }
+                        await openCamera();
+                    }
 
-    // Check if the dropdown is visible and the clicked target is outside of it
-    if (dropdown.style.display === 'block' && !dropdown.contains(event.target) && !profileHeader.contains(event.target)) {
-        dropdown.style.display = 'none'; // Hide the dropdown
-    }
-});
+                    function captureImage() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = cameraFeed.videoWidth;
+                        canvas.height = cameraFeed.videoHeight;
+                        canvas.getContext('2d').drawImage(cameraFeed, 0, 0);
+                        const imageDataUrl = canvas.toDataURL('image/jpeg');
+                        showImagePreview(imageDataUrl);
+                        closeCameraModal();
+                    }
+
+                    function toggleTheme() {
+                        const isLightMode = themeToggle.checked;
+                        if (isLightMode) {
+                            rootElement.classList.add('light-mode');
+                            localStorage.setItem('theme', 'light');
+                        } else {
+                            rootElement.classList.remove('light-mode');
+                            localStorage.setItem('theme', 'dark');
+                        }
+                        console.log(`Theme changed to: ${isLightMode ? 'light' : 'dark'}`);
+                    }
+
+                } catch (error) {
+                    console.error('An error occurred in the script:', error);
+                }
+
