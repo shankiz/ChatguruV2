@@ -451,4 +451,14 @@ try {
                 } catch (error) {
                     console.error('An error occurred in the script:', error);
                 }
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('profile-dropdown');
+    const profileHeader = document.getElementById('profile-header');
+    
+    // Check if the dropdown is visible and the clicked target is outside of it
+    if (dropdown.style.display === 'block' && !dropdown.contains(event.target) && !profileHeader.contains(event.target)) {
+        dropdown.style.display = 'none'; // Hide the dropdown
+    }
+});
+
 
