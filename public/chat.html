@@ -84,28 +84,33 @@
             <button id="get-credits-button">Get More Credits</button>
         </div>
         <div id="messages">
-            <button id="new-chat-button">+ New Chat</button>
             <!-- AI messages will be added here -->
         </div>
-        <div id="image-preview-container">
-            <img id="image-preview" src="" alt="Preview">
-            <button id="delete-image"><i class="material-icons">delete</i></button>
-        </div>
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="Type your message...">
-            <div class="action-buttons">
-                <button class="action-button" id="camera-button"><i class="material-icons">photo_camera</i></button>
-                <input type="file" id="file-input" accept="image/*" style="display: none;">
-                <button class="action-button" id="upload-button"><i class="material-icons">attach_file</i></button>
-                <button class="action-button" id="send-button"><i class="material-icons">send</i></button>
+        <div class="bottom-container">
+            <button id="new-chat-button">+New Chat</button>
+            <div class="input-area">
+                <input type="text" id="user-input" placeholder="Type your message...">
+                <div class="action-buttons">
+                    <button class="action-button" id="camera-button"><i class="material-icons">photo_camera</i></button>
+                    <input type="file" id="file-input" accept="image/*" style="display: none;">
+                    <button class="action-button" id="upload-button"><i class="material-icons">attach_file</i></button>
+                    <button class="action-button" id="send-button"><i class="material-icons">send</i></button>
+                </div>
             </div>
         </div>
+    </div>
+    <div id="image-preview-container">
+        <img id="image-preview" src="" alt="Preview">
+        <button id="delete-image"><i class="material-icons">delete</i></button>
     </div>
     <div id="camera-modal">
         <div id="camera-container">
             <video id="camera-feed" autoplay playsinline></video>
-            <button id="capture-button" class="action-button"><i class="material-icons">camera</i></button>
-            <button id="close-camera-button" class="action-button"><i class="material-icons">close</i></button>
+            <div class="camera-controls">
+                <button id="capture-button" class="action-button"><i class="material-icons">camera</i></button>
+                <button id="rotate-camera-button" class="action-button"><i class="material-icons">flip_camera_ios</i></button>
+                <button id="close-camera-button" class="action-button"><i class="material-icons">close</i></button>
+            </div>
         </div>
     </div>
 
