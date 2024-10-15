@@ -158,6 +158,7 @@ body {
   padding: 20px;
   display: flex;
   flex-direction: column;
+  margin-bottom: 57px;  /* Increased to make space for the larger button */
 }
 .message {
   margin-bottom: 20px;
@@ -202,9 +203,13 @@ body {
 }
 .input-area {
   display: flex;
-  padding: 20px;
+  align-items: center;
+  padding: 10px 20px;
   background-color: var(--bg-color);
   border-top: 1px solid rgba(0, 195, 255, 0.3);
+  width: 100%;
+  position: relative; /* Added position relative */
+  z-index: 0; /* Ensure the input area stays below the button */
 }
 #user-input {
   flex-grow: 1;
@@ -275,21 +280,108 @@ body {
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(2, 11, 26, 0.9);
+  background-color: rgba(0, 0, 0, 0.9);
 }
 #camera-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 #camera-feed {
-  max-width: 100%;
-  max-height: 70vh;
-  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.camera-controls {
+  position: absolute;
+  bottom: 30px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 20px;
+}
+.camera-controls .action-button {
+  background-color: rgba(0, 255, 255, 0.1);
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-accent);
+  font-size: 24px;
+  transition: all 0.3s ease;
+}
+.camera-controls .action-button:hover {
+  background-color: rgba(0, 255, 255, 0.2);
+}
+#capture-button {
+  width: 70px;
+  height: 70px;
+  background: radial-gradient(circle, rgba(0, 255, 255, 0.3) 0%, rgba(0, 255, 255, 0.1) 70%);
+  position: relative;
+  overflow: hidden;
   border: 2px solid var(--color-accent);
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+}
+#capture-button::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    transparent, 
+    rgba(0, 255, 255, 0.3), 
+    transparent 30%
+  );
+  animation: rotate 4s linear infinite;
+}
+#capture-button::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  z-index: 0;
+}
+#capture-button i {
+  position: relative;
+  z-index: 1;
+}
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+#rotate-camera-button {
+  order: -1;
+}
+#close-camera-button {
+  order: 1;
+}
+.light-mode .camera-controls .action-button {
+  background-color: rgba(139, 69, 19, 0.1);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.light-mode .camera-controls .action-button:hover {
+  background-color: rgba(139, 69, 19, 0.2);
+}
+.light-mode #capture-button {
+  background: radial-gradient(circle, rgba(139, 69, 19, 0.3) 0%, rgba(139, 69, 19, 0.1) 70%);
+  box-shadow: 0 0 15px rgba(139, 69, 19, 0.5);
+}
+.light-mode #capture-button::before {
+  background: conic-gradient(
+    transparent, 
+    rgba(139, 69, 19, 0.3), 
+    transparent 30%
+  );
 }
 .message img {
   max-width: 100%;
@@ -330,20 +422,22 @@ body {
   transform: scale(1.05);
 }
 #new-chat-button {
-  align-self: flex-end;
-  background: none;
-  border: 1px solid var(--button-color);
-  color: var(--button-color);
-  cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 15px;
-  font-size: 0.9em;
-  margin-bottom: 15px;
-  transition: all 0.3s ease;
-}
-#new-chat-button:hover {
+  display: block;
   background-color: var(--button-color);
   color: var(--bg-color);
+  border: none;
+  padding: 8px 16px;  /* Increased padding */
+  border-radius: 15px;  /* Increased border-radius */
+  font-size: 0.9em;  /* Increased font size */
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin: 0 auto 17px;  /* Increased bottom margin to move it up */
+  width: fit-content;
+  position: relative;
+  z-index: 1;
+}
+#new-chat-button:hover {
+  background-color: var(--button-hover-color);
   transform: scale(1.05);
 }
 
@@ -826,7 +920,7 @@ input:checked + .slider:before {
   --subheader-text-color: #a0e0ff;
 }
 
-/* Update existing styles */
+/* Update existing styles to work with the new background */
 .chat-header {
   background-color: var(--header-bg);
   border-bottom: 1px solid var(--color-accent);
@@ -1204,4 +1298,96 @@ input:checked + .slider {
 
 .logout-container {
   margin-top: auto; /* This pushes the logout button to the bottom */
+}
+
+/* Add these new styles to position the button */
+.bottom-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 15px;
+    background-color: transparent;
+}
+
+/* Adjust the existing .input-area styles */
+.input-area {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: var(--bg-color);
+    border-top: 1px solid rgba(0, 195, 255, 0.3);
+    width: 100%;
+}
+
+/* Add these styles to ensure text visibility in both modes */
+#new-chat-button {
+    color: var(--bg-color);
+    background-color: var(--button-color);
+}
+
+.light-mode #new-chat-button {
+    color: var(--bg-color);
+    background-color: var(--button-color);
+}
+
+/* Update the #new-chat-button styles */
+#new-chat-button {
+    display: block;
+    background-color: var(--button-color);
+    color: var(--bg-color);
+    border: none;
+    padding: 8px 16px;  /* Increased padding */
+    border-radius: 15px;  /* Increased border-radius */
+    font-size: 0.9em;  /* Increased font size */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin: 0 auto 17px;  /* Increased bottom margin to move it up */
+    width: fit-content;
+    position: relative;
+    z-index: 1;
+}
+
+#new-chat-button:hover {
+    background-color: var(--button-hover-color);
+    transform: scale(1.05);
+}
+
+/* Update the .bottom-container styles */
+.bottom-container {
+    display: flex;
+    flex-direction: column;
+    background-color: transparent;
+    padding-top: 0; /* Remove top padding */
+}
+
+/* Adjust the existing .input-area styles */
+.input-area {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: var(--bg-color);
+    border-top: 1px solid rgba(0, 195, 255, 0.3);
+    width: 100%;
+    position: relative;
+    z-index: 0;
+}
+
+/* Move the image preview container outside of the bottom container */
+#image-preview-container {
+    display: none;
+    padding: 15px 20px;
+    background-color: var(--bg-color);
+    border-top: 1px solid rgba(0, 195, 255, 0.3);
+    text-align: left;
+}
+
+/* Ensure text visibility in both modes */
+#new-chat-button {
+    color: var(--bg-color);
+    background-color: var(--button-color);
+}
+
+.light-mode #new-chat-button {
+    color: var(--bg-color);
+    background-color: var(--button-color);
 }
