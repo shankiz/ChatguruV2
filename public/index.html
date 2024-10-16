@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Login - Chatguru</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Chatguru V2</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
@@ -55,6 +57,10 @@
             display: flex;
             justify-content: center;
         }
+        .g_id_signin > div {
+            width: 100% !important;
+            max-width: 300px;
+        }
     </style>
 </head>
 <body>
@@ -93,7 +99,6 @@
             .then(data => {
                 console.log("Parsed response data", data);
                 if (data.success) {
-                    console.log('Redirecting to /chat...');
                     window.location.href = '/chat';
                 } else {
                     console.error('Sign-in failed:', data.message);
@@ -113,7 +118,7 @@
             });
             google.accounts.id.renderButton(
                 document.getElementsByClassName("g_id_signin")[0],
-                { theme: "outline", size: "large" }
+                { theme: "outline", size: "large", width: 300 }
             );
         };
     </script>
